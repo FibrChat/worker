@@ -16,14 +16,12 @@ func main() {
 	serverURL := mustEnv("SERVER_URL")
 	workerPassword := mustEnv("WORKER_PASSWORD")
 	remotePassword := envOr("REMOTE_PASSWORD", "simplechat-remote")
-	port := envInt("PORT", 4222)
 
 	wrk, err := worker.New(worker.Options{
 		Domain:         domain,
 		ServerURL:      serverURL,
 		WorkerPassword: workerPassword,
 		RemotePassword: remotePassword,
-		Port:           port,
 	})
 	if err != nil {
 		log.Fatalf("Failed to start worker: %v", err)

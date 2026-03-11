@@ -17,7 +17,8 @@ func (w *Worker) remoteConn(domain string) (*nats.Conn, error) {
 		return re.conn, nil
 	}
 
-	wsURL := fmt.Sprintf("ws://%s:%d", domain, w.opts.Port)
+	// Use default port for now...
+	wsURL := fmt.Sprintf("ws://%s:%d", domain, 4222)
 
 	rc, err := nats.Connect(
 		wsURL,

@@ -18,7 +18,6 @@ type Worker struct {
 }
 
 type Options struct {
-	Port           int
 	Domain         string
 	ServerURL      string
 	WorkerPassword string

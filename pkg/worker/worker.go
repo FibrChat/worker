@@ -22,9 +22,6 @@ func New(o Options) (*Worker, error) {
 	if o.RemotePassword == "" {
 		return nil, fmt.Errorf("RemotePassword is required")
 	}
-	if o.Port == 0 {
-		return nil, fmt.Errorf("Port is required")
-	}
 
 	nc, err := nats.Connect(
 		o.ServerURL,
