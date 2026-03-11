@@ -17,7 +17,7 @@ func main() {
 	workerPassword := mustEnv("WORKER_PASSWORD")
 	remotePassword := envOr("REMOTE_PASSWORD", "simplechat-remote")
 
-	wrk, err := worker.New(worker.Options{
+	wrk, err := worker.Start(worker.Options{
 		Domain:         domain,
 		ServerURL:      serverURL,
 		WorkerPassword: workerPassword,

@@ -8,8 +8,8 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// New creates and starts a new Worker instance.
-func New(o Options) (*Worker, error) {
+// Start initializes the worker, connects to NATS, and starts listening for messages.
+func Start(o Options) (*Worker, error) {
 	if o.Domain == "" {
 		return nil, fmt.Errorf("Domain is required")
 	}
