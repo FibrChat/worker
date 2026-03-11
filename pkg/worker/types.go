@@ -18,8 +18,9 @@ type Worker struct {
 }
 
 type Options struct {
-	Domain         string
-	ServerURL      string
-	WorkerPassword string
-	RemotePassword string
+	Domain          string
+	ServerURL       string
+	WorkerPassword  string
+	RemotePassword  string
+	InProcessServer nats.InProcessConnProvider
 }

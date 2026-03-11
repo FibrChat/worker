@@ -27,7 +27,7 @@ func main() {
 		log.Fatalf("Failed to start worker: %v", err)
 	}
 
-	fmt.Printf("SimpleChat worker running — domain=%s  nats=%s\n", domain, serverURL)
+	fmt.Printf("Worker running — domain=%s  nats=%s\n", domain, serverURL)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig

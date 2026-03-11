@@ -13,8 +13,8 @@ func Start(o Options) (*Worker, error) {
 	if o.Domain == "" {
 		return nil, fmt.Errorf("Domain is required")
 	}
-	if o.ServerURL == "" {
-		return nil, fmt.Errorf("ServerURL is required")
+	if o.ServerURL == "" && o.InProcessServer == nil {
+		return nil, fmt.Errorf("ServerURL or InProcessServer is required")
 	}
 	if o.WorkerPassword == "" {
 		return nil, fmt.Errorf("WorkerPassword is required")
@@ -23,16 +23,23 @@ func Start(o Options) (*Worker, error) {
 		return nil, fmt.Errorf("RemotePassword is required")
 	}
 
-	nc, err := nats.Connect(
-		o.ServerURL,
+	opts := []nats.Option{
 		nats.UserInfo("worker", o.WorkerPassword),
-		nats.Name("simplechat-worker-"+o.Domain),
+		nats.Name("worker-" + o.Domain),
 		nats.MaxReconnects(-1),
-		nats.ReconnectWait(2*time.Second),
-		nats.Timeout(10*time.Second),
-	)
+		nats.ReconnectWait(2 * time.Second),
+		nats.Timeout(10 * time.Second),
+	}
+
+	serverURL := o.ServerURL
+	if o.InProcessServer != nil {
+		opts = append(opts, nats.InProcessServer(o.InProcessServer))
+		serverURL = nats.DefaultURL
+	}
+
+	nc, err := nats.Connect(serverURL, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("connect NATS at %s: %w", o.ServerURL, err)
+		return nil, fmt.Errorf("connect NATS: %w", err)
 	}
 
 	w := &Worker{

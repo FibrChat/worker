@@ -23,7 +23,7 @@ func (w *Worker) remoteConn(domain string) (*nats.Conn, error) {
 	rc, err := nats.Connect(
 		wsURL,
 		nats.UserInfo("remote", w.opts.RemotePassword),
-		nats.Name("simplechat-"+w.opts.Domain+"-remote"),
+		nats.Name("worker-"+w.opts.Domain),
 		nats.MaxReconnects(5),
 		nats.ReconnectWait(2*time.Second),
 		nats.Timeout(5*time.Second),
