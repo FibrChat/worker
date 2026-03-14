@@ -19,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: "1.25.x"
 
       - name: Update go.mod dependencies
         working-directory: ./standalone
@@ -27,17 +27,19 @@ jobs:
           GOPRIVATE: github.com/fibrchat/*
         run: |
           go get github.com/fibrchat/worker@${{ github.sha }}
-          
           go mod tidy
+
+      - name: Build
+        working-directory: ./standalone
+        run: go build ./...
 
       - name: Commit and push changes
         working-directory: ./standalone
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
           git add go.mod go.sum
-          
+
           if ! git diff --staged --quiet; then
             git commit -m "chore: update FibrChat dependencies"
             git push
