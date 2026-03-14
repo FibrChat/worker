@@ -1,0 +1,49 @@
+name: Update Standalone go.mod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-standalone:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout FibrChat/standalone
+        uses: actions/checkout@v4
+        with:
+          repository: FibrChat/standalone
+          ssh-key: ${{ secrets.STANDALONE_DEPLOY_KEY }}
+          path: standalone
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Configure Git for private modules
+        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Update go.mod dependencies
+        working-directory: ./standalone
+        env:
+          GOPRIVATE: github.com/fibrchat/*
+        run: |
+          go get github.com/fibrchat/worker@${{ github.sha }}
+          
+          go mod tidy
+
+      - name: Commit and push changes
+        working-directory: ./standalone
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add go.mod go.sum
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update FibrChat dependencies"
+            git push
+          else
+            echo "No changes in go.mod to commit."
+          fi
