@@ -5,16 +5,22 @@ import (
 	"strings"
 )
 
-// Split splits an "user@domain" address into its components
-func Split(addr string) (string, string, error) {
-	parts := strings.SplitN(addr, "@", 2)
-	if len(parts) != 2 || parts[0] == "" {
-		return "", "", fmt.Errorf("invalid address %q: missing user", addr)
+// Address represents a user identity as id@domain.
+type Address struct {
+	ID     string `json:"id"`
+	Domain string `json:"domain"`
+}
+
+func (a Address) String() string {
+	return a.ID + "@" + a.Domain
+}
+
+// Parse parses a "user@domain" string into an Address.
+func Parse(s string) (Address, error) {
+	parts := strings.SplitN(s, "@", 2)
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return Address{}, fmt.Errorf("invalid address %q: expected user@domain", s)
 	}
 
-	if parts[1] == "" {
-		return "", "", fmt.Errorf("invalid address %q: missing domain", addr)
-	}
-
-	return parts[0], parts[1], nil
+	return Address{ID: parts[0], Domain: parts[1]}, nil
 }

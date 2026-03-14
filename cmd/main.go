@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 
 	"github.com/fibrchat/worker/pkg/worker"
@@ -15,13 +14,11 @@ func main() {
 	domain := mustEnv("DOMAIN")
 	serverURL := mustEnv("SERVER_URL")
 	workerPassword := mustEnv("WORKER_PASSWORD")
-	remotePassword := envOr("REMOTE_PASSWORD", "simplechat-remote")
 
 	wrk, err := worker.Start(worker.Options{
 		Domain:         domain,
 		ServerURL:      serverURL,
 		WorkerPassword: workerPassword,
-		RemotePassword: remotePassword,
 	})
 	if err != nil {
 		log.Fatalf("Failed to start worker: %v", err)
@@ -33,7 +30,7 @@ func main() {
 	<-sig
 	fmt.Println("\nShutting down...")
 
-	wrk.Shutdown()
+	wrk.Stop()
 }
 
 func mustEnv(key string) string {
@@ -42,23 +39,4 @@ func mustEnv(key string) string {
 		log.Fatalf("required environment variable %s is not set", key)
 	}
 	return v
-}
-
-func envOr(key, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return def
-}
-
-func envInt(key string, def int) int {
-	v := os.Getenv(key)
-	if v == "" {
-		return def
-	}
-	n, err := strconv.Atoi(v)
-	if err != nil {
-		log.Fatalf("invalid value for %s: %v", key, err)
-	}
-	return n
 }

@@ -3,7 +3,7 @@ module github.com/fibrchat/worker
 go 1.25.5
 
 require (
-	github.com/fibrchat/server v0.0.0-20260311075846-87f457f12bcb
+	github.com/fibrchat/server v0.0.0-20260314073510-562d9cfd77ad
 	github.com/nats-io/nats.go v1.49.0
 )
 

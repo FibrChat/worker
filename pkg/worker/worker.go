@@ -2,9 +2,8 @@ package worker
 
 import (
 	"fmt"
-	"log"
-	"time"
 
+	"github.com/fibrchat/server/pkg/subject"
 	"github.com/nats-io/nats.go"
 )
 
@@ -19,16 +18,11 @@ func Start(o Options) (*Worker, error) {
 	if o.WorkerPassword == "" {
 		return nil, fmt.Errorf("WorkerPassword is required")
 	}
-	if o.RemotePassword == "" {
-		return nil, fmt.Errorf("RemotePassword is required")
-	}
 
 	opts := []nats.Option{
-		nats.UserInfo("worker", o.WorkerPassword),
-		nats.Name("worker-" + o.Domain),
 		nats.MaxReconnects(-1),
-		nats.ReconnectWait(2 * time.Second),
-		nats.Timeout(10 * time.Second),
+		nats.Name("worker-" + o.Domain),
+		nats.UserInfo("worker", o.WorkerPassword),
 	}
 
 	serverURL := o.ServerURL
@@ -42,25 +36,24 @@ func Start(o Options) (*Worker, error) {
 		return nil, fmt.Errorf("connect NATS: %w", err)
 	}
 
-	w := &Worker{
-		nc:      nc,
-		opts:    o,
-		remotes: make(map[string]*remoteEntry),
+	w := &Worker{nc: nc, opts: o}
+
+	if _, err := nc.QueueSubscribe(subject.PublishSubject, "worker-message", w.handleMessage); err != nil {
+		return nil, fmt.Errorf("subscribe %s: %w", subject.PublishSubject, err)
 	}
 
-	if err := w.listen(); err != nil {
-		log.Fatalf("Failed to subscribe to NATS subjects: %v", err)
+	if _, err := nc.QueueSubscribe("$SYS.ACCOUNT.*.CONNECT", "worker-presence", w.handleSysConnect); err != nil {
+		return nil, fmt.Errorf("subscribe sys connect: %w", err)
+	}
+
+	if _, err := nc.QueueSubscribe("$SYS.ACCOUNT.*.DISCONNECT", "worker-presence", w.handleSysDisconnect); err != nil {
+		return nil, fmt.Errorf("subscribe sys disconnect: %w", err)
 	}
 
 	return w, nil
 }
 
-// Shutdown gracefully stops all components.
-func (s *Worker) Shutdown() {
+// Stop gracefully stops all components.
+func (s *Worker) Stop() {
 	s.nc.Drain()
-	s.remotesMu.Lock()
-	for _, re := range s.remotes {
-		_ = re.conn.Drain()
-	}
-	s.remotesMu.Unlock()
 }

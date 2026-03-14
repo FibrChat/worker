@@ -1,20 +1,36 @@
 package message
 
-import "time"
+import (
+	"time"
+
+	"github.com/fibrchat/worker/pkg/address"
+)
+
+type MessageType int
+
+const (
+	MessageDM MessageType = iota
+	MessageROOM
+)
+
+type ResponseCode int
+
+const (
+	CodeSuccess ResponseCode = iota
+	CodeInternal
+)
 
 type Message struct {
-	From      string    `json:"from"`
-	To        string    `json:"to"`
-	Body      string    `json:"body"`
+	Type MessageType `json:"type"`
+
+	Src address.Address `json:"src"`
+	Dst address.Address `json:"dst"`
+
+	Content   string    `json:"content"`
 	Timestamp time.Time `json:"ts"`
 }
 
 type Response struct {
-	Code  int    `json:"code"`
-	Error string `json:"error,omitempty"`
+	Code  ResponseCode `json:"code"`
+	Error string       `json:"error,omitempty"`
 }
-
-const (
-	CodeSuccess = iota
-	CodeInternal
-)
