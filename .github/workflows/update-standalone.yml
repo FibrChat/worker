@@ -21,9 +21,6 @@ jobs:
         with:
           go-version: '1.25.x'
 
-      - name: Configure Git for private modules
-        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-
       - name: Update go.mod dependencies
         working-directory: ./standalone
         env:
