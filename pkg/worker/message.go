@@ -7,6 +7,7 @@ import (
 
 	"github.com/fibrchat/server/pkg/subject"
 	"github.com/fibrchat/worker/pkg/message"
+	"github.com/fibrchat/worker/pkg/request"
 	"github.com/nats-io/nats.go"
 )
 
@@ -22,12 +23,12 @@ func (w *Worker) sendMessage(cm message.Message) error {
 }
 
 // sendReply sends a Reponse back to the client
-func (w *Worker) sendReply(msg *nats.Msg, code message.ResponseCode, errMsg string) {
+func (w *Worker) sendReply(msg *nats.Msg, code request.ResponseCode, errMsg string) {
 	if msg.Reply == "" {
 		return
 	}
 
-	reply := message.Response{Code: code}
+	reply := request.Response{Code: code}
 	if errMsg != "" {
 		reply.Error = errMsg
 	}

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fibrchat/worker/pkg/message"
+	"github.com/fibrchat/worker/pkg/request"
 
 	"github.com/nats-io/nats.go"
 )
@@ -14,15 +15,15 @@ func (w *Worker) handleMessage(msg *nats.Msg) {
 	var cm message.Message
 	if err := json.Unmarshal(msg.Data, &cm); err != nil {
 		log.Printf("[worker] malformed chat.send: %v", err)
-		w.sendReply(msg, message.CodeInternal, "malformed message")
+		w.sendReply(msg, request.CodeInternal, "malformed message")
 		return
 	}
 
 	if err := w.sendMessage(cm); err != nil {
 		log.Printf("[worker] sendMessage error: %v", err)
-		w.sendReply(msg, message.CodeInternal, err.Error())
+		w.sendReply(msg, request.CodeInternal, err.Error())
 		return
 	}
 
-	w.sendReply(msg, message.CodeSuccess, "")
+	w.sendReply(msg, request.CodeSuccess, "")
 }

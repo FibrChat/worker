@@ -42,6 +42,10 @@ func Start(o Options) (*Worker, error) {
 		return nil, fmt.Errorf("subscribe %s: %w", subject.PublishSubject, err)
 	}
 
+	if _, err := nc.QueueSubscribe(subject.UsersSubject, "worker-users", w.handleUsers); err != nil {
+		return nil, fmt.Errorf("subscribe %s: %w", subject.UsersSubject, err)
+	}
+
 	if _, err := nc.QueueSubscribe("$SYS.ACCOUNT.*.CONNECT", "worker-presence", w.handleSysConnect); err != nil {
 		return nil, fmt.Errorf("subscribe sys connect: %w", err)
 	}
